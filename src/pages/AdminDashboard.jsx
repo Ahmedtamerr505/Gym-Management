@@ -176,72 +176,79 @@ export default function AdminDashboard() {
       </div>
 
       {/* Analytics Section */}
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-3">
         {/* Chart */}
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6 backdrop-blur-xl xl:col-span-2 min-w-0 overflow-hidden">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6 backdrop-blur-xl 2xl:col-span-2 overflow-hidden min-w-0">
+          {/* Header */}
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-white">Gym Analytics</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-white">
+              Gym Analytics
+            </h2>
 
             <p className="mt-1 text-sm text-slate-400">
               Members, trainers, and revenue overview.
             </p>
           </div>
 
-          <div className="h-[260px] sm:h-[320px] lg:h-[350px] w-full min-w-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={analyticsData}
-                margin={{
-                  top: 10,
-                  right: 10,
-                  left: -20,
-                  bottom: 0,
-                }}
-              >
-                <defs>
-                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
-
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-
-                <XAxis
-                  dataKey="name"
-                  stroke="#94A3B8"
-                  tick={{ fontSize: 12 }}
-                />
-
-                <YAxis stroke="#94A3B8" tick={{ fontSize: 12 }} />
-
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#0F172A",
-                    border: "1px solid #334155",
-                    borderRadius: "12px",
-                    color: "#fff",
+          {/* Chart Wrapper */}
+          <div className="w-full min-w-0">
+            <div className="h-[220px] sm:h-[280px] md:h-[320px] lg:h-[360px] w-full">
+              <ResponsiveContainer width="99%" height="100%">
+                <AreaChart
+                  data={analyticsData}
+                  margin={{
+                    top: 10,
+                    right: 10,
+                    left: -25,
+                    bottom: 0,
                   }}
-                />
+                >
+                  <defs>
+                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
 
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#3B82F6"
-                  strokeWidth={3}
-                  fillOpacity={1}
-                  fill="url(#colorValue)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+
+                  <XAxis
+                    dataKey="name"
+                    stroke="#94A3B8"
+                    tick={{ fontSize: 11 }}
+                  />
+
+                  <YAxis stroke="#94A3B8" tick={{ fontSize: 11 }} width={40} />
+
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#0F172A",
+                      border: "1px solid #334155",
+                      borderRadius: "12px",
+                      color: "#fff",
+                    }}
+                  />
+
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#3B82F6"
+                    strokeWidth={3}
+                    fillOpacity={1}
+                    fill="url(#colorValue)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
         {/* Latest Members */}
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6 backdrop-blur-xl min-w-0">
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-white">New Members</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-white">
+              New Members
+            </h2>
 
             <p className="mt-1 text-sm text-slate-400">
               Recently joined members.
@@ -252,26 +259,26 @@ export default function AdminDashboard() {
             {latestMembers.map((member) => (
               <div
                 key={member.id}
-                className="flex items-center gap-4 rounded-2xl border border-white/5 bg-white/[0.03] p-4 transition hover:bg-white/[0.06]"
+                className="flex items-center gap-3 rounded-2xl border border-white/5 bg-white/[0.03] p-3 sm:p-4 transition hover:bg-white/[0.06]"
               >
                 {/* Avatar */}
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-lg font-bold text-white">
+                <div className="flex h-11 w-11 sm:h-12 sm:w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-base sm:text-lg font-bold text-white">
                   {member.fullName?.charAt(0)}
                 </div>
 
                 {/* Info */}
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate font-medium text-white">
+                  <h3 className="truncate text-sm sm:text-base font-medium text-white">
                     {member.fullName}
                   </h3>
 
-                  <p className="truncate text-sm text-slate-400">
+                  <p className="truncate text-xs sm:text-sm text-slate-400">
                     {member.email}
                   </p>
                 </div>
 
                 {/* Status */}
-                <div>
+                <div className="hidden sm:block">
                   <span className="rounded-full bg-green-500/20 px-3 py-1 text-xs font-medium text-green-400">
                     Active
                   </span>
