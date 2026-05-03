@@ -1,8 +1,13 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
-import DashboardLayout from '../layouts/DashboardLayout';
-import AdminDashboard from '../pages/AdminDashboard';
-import MemberDashboard from '../pages/MemberDashboard';
-import Login from '../pages/Login';
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoute";
+import Unauthorized from "../pages/Unauthorized";
+import DashboardLayout from "../layouts/DashboardLayout";
+import AdminDashboard from "../pages/AdminDashboard";
+import MembersPage from "../pages/MembersPage";
+import TrainersPage from "../pages/TrainersPage";
+import ClassesPage from "../pages/ClassesPage";
+import PublicRoute from "./PublicRoute";
+import Login from "../pages/Login";
 
 export const router = createBrowserRouter([
   {
@@ -10,20 +15,42 @@ export const router = createBrowserRouter([
     element: <Navigate to="/login" replace />,
   },
   {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/dashboard",
-    element: <DashboardLayout />,
+    element: <PublicRoute />,
     children: [
       {
-        path: "admin",
-        element: <AdminDashboard />,
+        path: "/login",
+        element: <Login />,
       },
+    ],
+  },
+  {
+    path: "/unauthorized",
+    element: <Unauthorized />,
+  },
+  {
+    element: <ProtectedRoute allowedRoles={["Admin"]} />,
+    children: [
       {
-        path: "member",
-        element: <MemberDashboard />,
+        path: "/dashboard",
+        element: <DashboardLayout />,
+        children: [
+          {
+            path: "admin",
+            element: <AdminDashboard />,
+          },
+          {
+            path: "members",
+            element: <MembersPage />,
+          },
+          {
+            path: "trainers",
+            element: <TrainersPage />,
+          },
+          {
+            path: "classes",
+            element: <ClassesPage />,
+          },
+        ],
       },
     ],
   },
