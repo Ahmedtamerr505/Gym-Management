@@ -38,7 +38,7 @@ export default function Login() {
         password: formData.password,
       });
 
-      console.log("LOGIN RESPONSE:", response.data);
+      // console.log("LOGIN RESPONSE:", response.data);
 
       const token = response.data.token;
 

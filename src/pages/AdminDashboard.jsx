@@ -178,7 +178,7 @@ export default function AdminDashboard() {
       {/* Analytics Section */}
       <div className="grid gap-6 xl:grid-cols-3">
         {/* Chart */}
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl xl:col-span-2">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6 backdrop-blur-xl xl:col-span-2 min-w-0 overflow-hidden">
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-white">Gym Analytics</h2>
 
@@ -187,9 +187,17 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <div className="h-[350px]">
+          <div className="h-[260px] sm:h-[320px] lg:h-[350px] w-full min-w-0">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={analyticsData}>
+              <AreaChart
+                data={analyticsData}
+                margin={{
+                  top: 10,
+                  right: 10,
+                  left: -20,
+                  bottom: 0,
+                }}
+              >
                 <defs>
                   <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
@@ -200,9 +208,13 @@ export default function AdminDashboard() {
 
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
 
-                <XAxis dataKey="name" stroke="#94A3B8" />
+                <XAxis
+                  dataKey="name"
+                  stroke="#94A3B8"
+                  tick={{ fontSize: 12 }}
+                />
 
-                <YAxis stroke="#94A3B8" />
+                <YAxis stroke="#94A3B8" tick={{ fontSize: 12 }} />
 
                 <Tooltip
                   contentStyle={{
@@ -217,6 +229,7 @@ export default function AdminDashboard() {
                   type="monotone"
                   dataKey="value"
                   stroke="#3B82F6"
+                  strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#colorValue)"
                 />
