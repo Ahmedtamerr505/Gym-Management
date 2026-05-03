@@ -142,7 +142,7 @@ export default function Login() {
                 </div>
 
                 <div>
-                  <h1 className="text-2xl font-bold">Gym Master</h1>
+                  <h1 className="text-2xl text-white font-bold">Gym Master</h1>
 
                   <p className="text-sm text-slate-400">Management Suite</p>
                 </div>
@@ -191,13 +191,6 @@ export default function Login() {
                     <label className="text-sm font-semibold uppercase tracking-wide text-slate-300">
                       Password
                     </label>
-
-                    <button
-                      type="button"
-                      className="text-xs font-medium text-blue-400 hover:text-blue-300"
-                    >
-                      FORGOT?
-                    </button>
                   </div>
 
                   <div className="relative">
@@ -233,17 +226,7 @@ export default function Login() {
                   </div>
                 )}
 
-                {/* Remember */}
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-white/20 bg-transparent"
-                  />
-
-                  <span className="text-sm text-slate-400">
-                    Keep me logged in for 30 days
-                  </span>
-                </div>
+                <br/>
 
                 {/* Button */}
                 <button
