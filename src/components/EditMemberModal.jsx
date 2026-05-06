@@ -1,14 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { X, Loader } from 'lucide-react';
-import axiosInstance from '../api/axiosInstance';
+import React, { useState, useEffect } from "react";
+import { X, Loader } from "lucide-react";
+import axiosInstance from "../api/axiosInstance";
 
-export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) {
+export default function EditMemberModal({
+  isOpen,
+  onClose,
+  member,
+  onSuccess,
+}) {
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phoneNumber: '',
-    address: '',
-    membershipPlanId: '',
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
+    membershipPlanId: "",
   });
 
   const [membershipPlans, setMembershipPlans] = useState([]);
@@ -21,11 +26,11 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
   useEffect(() => {
     if (isOpen && member) {
       setFormData({
-        fullName: member.fullName || '',
-        email: member.email || '',
-        phoneNumber: member.phoneNumber || '',
-        address: member.address || '',
-        membershipPlanId: member.membershipPlanId || '',
+        fullName: member.fullName || "",
+        email: member.email || "",
+        phoneNumber: member.phoneNumber || "",
+        address: member.address || "",
+        membershipPlanId: member.membershipPlanId || "",
       });
       fetchMembershipPlans();
     }
@@ -35,11 +40,11 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
     try {
       setLoading(true);
       setError(null);
-      const response = await axiosInstance.get('/api/MembershipPlans');
+      const response = await axiosInstance.get("/api/MembershipPlans");
       setMembershipPlans(response.data);
     } catch (err) {
-      setError('Failed to load membership plans. Please try again.');
-      console.error('Error fetching membership plans:', err);
+      setError("Failed to load membership plans. Please try again.");
+      console.error("Error fetching membership plans:", err);
     } finally {
       setLoading(false);
     }
@@ -49,46 +54,116 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
   const validateForm = () => {
     const errors = {};
 
+    // Full Name
     if (!formData.fullName.trim()) {
-      errors.fullName = 'Full Name is required';
+      errors.fullName = "Full Name is required";
+    } else if (formData.fullName.trim().length < 3) {
+      errors.fullName = "Full Name must be at least 3 characters";
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.fullName)) {
+      errors.fullName = "Full Name should contain letters only";
     }
 
+    // Email
     if (!formData.email.trim()) {
-      errors.email = 'Email is required';
+      errors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Please enter a valid email';
+      errors.email = "Please enter a valid email address";
     }
 
+    // Phone Number
     if (!formData.phoneNumber.trim()) {
-      errors.phoneNumber = 'Phone Number is required';
+      errors.phoneNumber = "Phone Number is required";
+    } else if (!/^[0-9]+$/.test(formData.phoneNumber)) {
+      errors.phoneNumber = "Phone Number must contain numbers only";
+    } else if (formData.phoneNumber.length < 11) {
+      errors.phoneNumber = "Phone Number must be at least 11 digits";
+    } else if (formData.phoneNumber.length > 15) {
+      errors.phoneNumber = "Phone Number cannot exceed 15 digits";
     }
 
+    // Address
     if (!formData.address.trim()) {
-      errors.address = 'Address is required';
+      errors.address = "Address is required";
+    } else if (formData.address.trim().length < 5) {
+      errors.address = "Address must be at least 5 characters";
     }
 
+    // Membership Plan
     if (!formData.membershipPlanId) {
-      errors.membershipPlanId = 'Membership Plan is required';
+      errors.membershipPlanId = "Membership Plan is required";
     }
 
     setValidationErrors(errors);
+
     return Object.keys(errors).length === 0;
   };
 
   // Handle form input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    let updatedValue = value;
+
+    // Prevent letters in phone number
+    if (name === "phoneNumber") {
+      updatedValue = value.replace(/\D/g, "");
+    }
+
+    // Prevent numbers/symbols in full name
+    if (name === "fullName") {
+      updatedValue = value.replace(/[^a-zA-Z\s]/g, "");
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: updatedValue,
     }));
-    // Clear validation error for this field
-    if (validationErrors[name]) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
+
+    // LIVE VALIDATION
+    let errorMessage = "";
+
+    if (name === "fullName") {
+      if (!updatedValue.trim()) {
+        errorMessage = "Full Name is required";
+      } else if (updatedValue.trim().length < 3) {
+        errorMessage = "Full Name must be at least 3 characters";
+      }
     }
+
+    if (name === "email") {
+      if (!updatedValue.trim()) {
+        errorMessage = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updatedValue)) {
+        errorMessage = "Please enter a valid email address";
+      }
+    }
+
+    if (name === "phoneNumber") {
+      if (!updatedValue.trim()) {
+        errorMessage = "Phone Number is required";
+      } else if (updatedValue.length < 11) {
+        errorMessage = "Phone Number must be at least 11 digits";
+      }
+    }
+
+    if (name === "address") {
+      if (!updatedValue.trim()) {
+        errorMessage = "Address is required";
+      } else if (updatedValue.trim().length < 5) {
+        errorMessage = "Address must be at least 5 characters";
+      }
+    }
+
+    if (name === "membershipPlanId") {
+      if (!updatedValue) {
+        errorMessage = "Membership Plan is required";
+      }
+    }
+
+    setValidationErrors((prev) => ({
+      ...prev,
+      [name]: errorMessage,
+    }));
   };
 
   // Handle form submission
@@ -114,13 +189,13 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
         isActive: member.isActive,
       };
 
-      console.log('Updating member:', member.id, payload);
+      console.log("Updating member:", member.id, payload);
 
       // Submit PUT request
       await axiosInstance.put(`/api/Members/${member.id}`, payload);
 
       // Success
-      alert('Member updated successfully!');
+      alert("Member updated successfully!");
 
       // Close modal and trigger refresh
       onClose();
@@ -128,10 +203,11 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
         onSuccess();
       }
     } catch (err) {
-      const errorMessage = err.message || 'Failed to update member. Please try again.';
+      const errorMessage =
+        err.message || "Failed to update member. Please try again.";
       setError(errorMessage);
-      console.error('Error updating member:', err);
-      console.error('Error details:', err.response?.data);
+      console.error("Error updating member:", err);
+      console.error("Error details:", err.response?.data);
     } finally {
       setSubmitting(false);
     }
@@ -163,7 +239,10 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
           </div>
 
           {/* Content */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          <form
+            onSubmit={handleSubmit}
+            className="p-6 space-y-4 max-h-[70vh] overflow-y-auto"
+          >
             {/* Error Alert */}
             {error && (
               <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
@@ -179,17 +258,20 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
               <input
                 type="text"
                 name="fullName"
+                maxLength={50}
                 value={formData.fullName}
                 onChange={handleInputChange}
                 placeholder="Enter full name"
                 className={`w-full px-4 py-2.5 bg-slate-800/50 border rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none transition-all duration-200 ${
                   validationErrors.fullName
-                    ? 'border-red-500/50 focus:border-red-500/50 focus:bg-slate-800'
-                    : 'border-slate-700/50 focus:border-blue-500/50 focus:bg-slate-800'
+                    ? "border-red-500/50 focus:border-red-500/50 focus:bg-slate-800"
+                    : "border-slate-700/50 focus:border-blue-500/50 focus:bg-slate-800"
                 }`}
               />
               {validationErrors.fullName && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.fullName}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.fullName}
+                </p>
               )}
             </div>
 
@@ -201,17 +283,20 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
               <input
                 type="email"
                 name="email"
+                maxLength={100}
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter email address"
                 className={`w-full px-4 py-2.5 bg-slate-800/50 border rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none transition-all duration-200 ${
                   validationErrors.email
-                    ? 'border-red-500/50 focus:border-red-500/50 focus:bg-slate-800'
-                    : 'border-slate-700/50 focus:border-blue-500/50 focus:bg-slate-800'
+                    ? "border-red-500/50 focus:border-red-500/50 focus:bg-slate-800"
+                    : "border-slate-700/50 focus:border-blue-500/50 focus:bg-slate-800"
                 }`}
               />
               {validationErrors.email && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.email}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.email}
+                </p>
               )}
             </div>
 
@@ -223,17 +308,21 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
               <input
                 type="tel"
                 name="phoneNumber"
+                maxLength={15}
+                inputMode="numeric"
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
                 placeholder="Enter phone number"
                 className={`w-full px-4 py-2.5 bg-slate-800/50 border rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none transition-all duration-200 ${
                   validationErrors.phoneNumber
-                    ? 'border-red-500/50 focus:border-red-500/50 focus:bg-slate-800'
-                    : 'border-slate-700/50 focus:border-blue-500/50 focus:bg-slate-800'
+                    ? "border-red-500/50 focus:border-red-500/50 focus:bg-slate-800"
+                    : "border-slate-700/50 focus:border-blue-500/50 focus:bg-slate-800"
                 }`}
               />
               {validationErrors.phoneNumber && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.phoneNumber}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.phoneNumber}
+                </p>
               )}
             </div>
 
@@ -244,18 +333,21 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
               </label>
               <textarea
                 name="address"
+                maxLength={200}
                 value={formData.address}
                 onChange={handleInputChange}
                 placeholder="Enter address"
                 rows="3"
                 className={`w-full px-4 py-2.5 bg-slate-800/50 border rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none transition-all duration-200 resize-none ${
                   validationErrors.address
-                    ? 'border-red-500/50 focus:border-red-500/50 focus:bg-slate-800'
-                    : 'border-slate-700/50 focus:border-blue-500/50 focus:bg-slate-800'
+                    ? "border-red-500/50 focus:border-red-500/50 focus:bg-slate-800"
+                    : "border-slate-700/50 focus:border-blue-500/50 focus:bg-slate-800"
                 }`}
               />
               {validationErrors.address && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.address}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.address}
+                </p>
               )}
             </div>
 
@@ -267,7 +359,9 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
               {loading ? (
                 <div className="flex items-center justify-center p-3 bg-slate-800/50 border border-slate-700/50 rounded-lg">
                   <Loader size={16} className="text-blue-400 animate-spin" />
-                  <span className="ml-2 text-sm text-slate-400">Loading plans...</span>
+                  <span className="ml-2 text-sm text-slate-400">
+                    Loading plans...
+                  </span>
                 </div>
               ) : (
                 <select
@@ -276,20 +370,22 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }) 
                   onChange={handleInputChange}
                   className={`w-full px-4 py-2.5 bg-slate-800/50 border rounded-lg text-slate-100 focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${
                     validationErrors.membershipPlanId
-                      ? 'border-red-500/50 focus:border-red-500/50 focus:bg-slate-800'
-                      : 'border-slate-700/50 focus:border-blue-500/50 focus:bg-slate-800'
+                      ? "border-red-500/50 focus:border-red-500/50 focus:bg-slate-800"
+                      : "border-slate-700/50 focus:border-blue-500/50 focus:bg-slate-800"
                   }`}
                 >
                   <option value="">-- Select a plan --</option>
                   {membershipPlans.map((plan) => (
                     <option key={plan.id} value={plan.id}>
-                      {plan.name} - {plan.price ? `$${plan.price}` : 'N/A'}
+                      {plan.name} - {plan.price ? `$${plan.price}` : "N/A"}
                     </option>
                   ))}
                 </select>
               )}
               {validationErrors.membershipPlanId && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.membershipPlanId}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.membershipPlanId}
+                </p>
               )}
             </div>
           </form>

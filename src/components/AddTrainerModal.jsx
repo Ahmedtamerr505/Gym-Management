@@ -19,46 +19,125 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
   const validateForm = () => {
     const errors = {};
 
+    // Full Name
     if (!formData.fullName.trim()) {
       errors.fullName = "Full Name is required";
+    } else if (formData.fullName.trim().length < 3) {
+      errors.fullName = "Full Name must be at least 3 characters";
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.fullName)) {
+      errors.fullName = "Full Name should contain letters only";
     }
 
+    // Email
     if (!formData.email.trim()) {
       errors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = "Please enter a valid email";
+      errors.email = "Please enter a valid email address";
     }
 
+    // Phone
     if (!formData.phone.trim()) {
       errors.phone = "Phone Number is required";
+    } else if (!/^[0-9]+$/.test(formData.phone)) {
+      errors.phone = "Phone Number must contain numbers only";
+    } else if (formData.phone.length < 11) {
+      errors.phone = "Phone Number must be at least 11 digits";
+    } else if (formData.phone.length > 15) {
+      errors.phone = "Phone Number cannot exceed 15 digits";
     }
 
+    // Speciality
     if (!formData.speciality.trim()) {
       errors.speciality = "Speciality is required";
+    } else if (formData.speciality.trim().length < 3) {
+      errors.speciality = "Speciality must be at least 3 characters";
     }
 
+    // Bio
     if (!formData.bio.trim()) {
       errors.bio = "Bio is required";
+    } else if (formData.bio.trim().length < 15) {
+      errors.bio = "Bio must be at least 15 characters";
     }
 
     setValidationErrors(errors);
+
     return Object.keys(errors).length === 0;
   };
 
   // Handle form input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    let updatedValue = value;
+
+    // Prevent letters in phone field
+    if (name === "phone") {
+      updatedValue = value.replace(/\D/g, "");
+    }
+
+    // Prevent numbers/symbols in full name
+    if (name === "fullName") {
+      updatedValue = value.replace(/[^a-zA-Z\s]/g, "");
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: updatedValue,
     }));
-    // Clear validation error for this field
-    if (validationErrors[name]) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
+
+    // Live validation
+    let errorMessage = "";
+
+    // Full Name
+    if (name === "fullName") {
+      if (!updatedValue.trim()) {
+        errorMessage = "Full Name is required";
+      } else if (updatedValue.trim().length < 3) {
+        errorMessage = "Full Name must be at least 3 characters";
+      }
     }
+
+    // Email
+    if (name === "email") {
+      if (!updatedValue.trim()) {
+        errorMessage = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updatedValue)) {
+        errorMessage = "Please enter a valid email address";
+      }
+    }
+
+    // Phone
+    if (name === "phone") {
+      if (!updatedValue.trim()) {
+        errorMessage = "Phone Number is required";
+      } else if (updatedValue.length < 11) {
+        errorMessage = "Phone Number must be at least 11 digits";
+      }
+    }
+
+    // Speciality
+    if (name === "speciality") {
+      if (!updatedValue.trim()) {
+        errorMessage = "Speciality is required";
+      } else if (updatedValue.trim().length < 3) {
+        errorMessage = "Speciality must be at least 3 characters";
+      }
+    }
+
+    // Bio
+    if (name === "bio") {
+      if (!updatedValue.trim()) {
+        errorMessage = "Bio is required";
+      } else if (updatedValue.trim().length < 15) {
+        errorMessage = "Bio must be at least 15 characters";
+      }
+    }
+
+    setValidationErrors((prev) => ({
+      ...prev,
+      [name]: errorMessage,
+    }));
   };
 
   // Handle form submission
@@ -108,7 +187,8 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
         onSuccess();
       }
     } catch (err) {
-      const errorMessage = err.message || "Failed to add trainer. Please try again.";
+      const errorMessage =
+        err.message || "Failed to add trainer. Please try again.";
       setError(errorMessage);
       console.error("Error adding trainer:", err);
       console.error("Error details:", err.response?.data);
@@ -143,7 +223,10 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
           </div>
 
           {/* Content */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          <form
+            onSubmit={handleSubmit}
+            className="p-6 space-y-4 max-h-[70vh] overflow-y-auto"
+          >
             {/* Error Alert */}
             {error && (
               <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
@@ -159,6 +242,7 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
               <input
                 type="text"
                 name="fullName"
+                maxLength={50}
                 value={formData.fullName}
                 onChange={handleInputChange}
                 placeholder="Enter full name"
@@ -169,7 +253,9 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
                 }`}
               />
               {validationErrors.fullName && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.fullName}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.fullName}
+                </p>
               )}
             </div>
 
@@ -181,6 +267,7 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
               <input
                 type="email"
                 name="email"
+                maxLength={100}
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter email address"
@@ -191,7 +278,9 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
                 }`}
               />
               {validationErrors.email && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.email}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.email}
+                </p>
               )}
             </div>
 
@@ -203,6 +292,8 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
               <input
                 type="tel"
                 name="phone"
+                inputMode="numeric"
+                maxLength={15}
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="Enter phone number"
@@ -213,7 +304,9 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
                 }`}
               />
               {validationErrors.phone && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.phone}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.phone}
+                </p>
               )}
             </div>
 
@@ -225,6 +318,7 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
               <input
                 type="text"
                 name="speciality"
+                maxLength={50}
                 value={formData.speciality}
                 onChange={handleInputChange}
                 placeholder="e.g., CrossFit, Yoga, Boxing"
@@ -235,7 +329,9 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
                 }`}
               />
               {validationErrors.speciality && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.speciality}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.speciality}
+                </p>
               )}
             </div>
 
@@ -246,6 +342,7 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
               </label>
               <textarea
                 name="bio"
+                maxLength={300}
                 value={formData.bio}
                 onChange={handleInputChange}
                 placeholder="Enter trainer bio"
@@ -257,7 +354,9 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
                 }`}
               />
               {validationErrors.bio && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.bio}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.bio}
+                </p>
               )}
             </div>
           </form>

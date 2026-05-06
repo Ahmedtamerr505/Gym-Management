@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 import { X, Loader } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 
-export default function EditTrainerModal({ isOpen, onClose, trainer, onSuccess }) {
+export default function EditTrainerModal({
+  isOpen,
+  onClose,
+  trainer,
+  onSuccess,
+}) {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -30,50 +35,154 @@ export default function EditTrainerModal({ isOpen, onClose, trainer, onSuccess }
     }
   }, [isOpen, trainer]);
 
-  // Validate form
+  // ================= VALIDATE FORM =================
   const validateForm = () => {
     const errors = {};
 
+    // Full Name
     if (!formData.fullName.trim()) {
-      errors.fullName = "Full Name is required";
+      errors.fullName = "Full name is required";
+    } else if (formData.fullName.trim().length < 3) {
+      errors.fullName = "Full name must be at least 3 characters";
+    } else if (formData.fullName.trim().length > 50) {
+      errors.fullName = "Full name must be less than 50 characters";
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.fullName.trim())) {
+      errors.fullName = "Full name can only contain letters";
     }
 
+    // Email
     if (!formData.email.trim()) {
       errors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = "Please enter a valid email";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errors.email = "Please enter a valid email address";
     }
 
+    // Phone
     if (!formData.phone.trim()) {
-      errors.phone = "Phone Number is required";
+      errors.phone = "Phone number is required";
+    } else if (!/^[0-9]+$/.test(formData.phone.trim())) {
+      errors.phone = "Phone number must contain numbers only";
+    } else if (
+      formData.phone.trim().length < 10 ||
+      formData.phone.trim().length > 15
+    ) {
+      errors.phone = "Phone number must be between 11 and 15 digits";
     }
 
+    // Speciality
     if (!formData.speciality.trim()) {
       errors.speciality = "Speciality is required";
-    }
+    } else if (formData.speciality.trim().length < 3) {
+      errors.speciality = "Speciality must be at least 3 characters";
+    } else if (formData.speciality.trim().length > 40) {
+      errors.speciality = "Speciality must be less than 40 characters";}
+    //  else if (!/^[a-zA-Z\s,-]+$/.test(formData.speciality.trim())) {
+    //   errors.speciality = "Speciality contains invalid characters";
+    // }
 
+    // Bio
     if (!formData.bio.trim()) {
       errors.bio = "Bio is required";
+    } else if (formData.bio.trim().length < 20) {
+      errors.bio = "Bio must be at least 20 characters";
+    } else if (formData.bio.trim().length > 500) {
+      errors.bio = "Bio must be less than 500 characters";
     }
 
     setValidationErrors(errors);
+
     return Object.keys(errors).length === 0;
   };
 
-  // Handle form input change
+  // ================= HANDLE INPUT CHANGE =================
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    let updatedValue = value;
+
+    // Prevent numbers in full name
+    if (name === "fullName") {
+      updatedValue = value.replace(/[^a-zA-Z\s]/g, "");
+    }
+
+    // Prevent invalid characters in speciality
+    if (name === "speciality") {
+      updatedValue = value.replace(/[^a-zA-Z\s,-]/g, "");
+    }
+
+    // Prevent letters in phone
+    if (name === "phone") {
+      updatedValue = value.replace(/\D/g, "");
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: updatedValue,
     }));
-    // Clear validation error for this field
-    if (validationErrors[name]) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
+
+    // Real-time validation
+    setValidationErrors((prev) => {
+      const updatedErrors = { ...prev };
+
+      switch (name) {
+        case "fullName":
+          if (!updatedValue.trim()) {
+            updatedErrors.fullName = "Full name is required";
+          } else if (updatedValue.trim().length < 3) {
+            updatedErrors.fullName = "Full name must be at least 3 characters";
+          } else {
+            delete updatedErrors.fullName;
+          }
+          break;
+
+        case "email":
+          if (!updatedValue.trim()) {
+            updatedErrors.email = "Email is required";
+          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updatedValue)) {
+            updatedErrors.email = "Please enter a valid email";
+          } else {
+            delete updatedErrors.email;
+          }
+          break;
+
+        case "phone":
+          if (!updatedValue.trim()) {
+            updatedErrors.phone = "Phone number is required";
+          } else if (updatedValue.length < 11 || updatedValue.length > 15) {
+            updatedErrors.phone =
+              "Phone number must be between 11 and 15 digits";
+          } else {
+            delete updatedErrors.phone;
+          }
+          break;
+
+        case "speciality":
+          if (!updatedValue.trim()) {
+            updatedErrors.speciality = "Speciality is required";
+          } else if (updatedValue.trim().length < 3) {
+            updatedErrors.speciality =
+              "Speciality must be at least 3 characters";
+          } else {
+            delete updatedErrors.speciality;
+          }
+          break;
+
+        case "bio":
+          if (!updatedValue.trim()) {
+            updatedErrors.bio = "Bio is required";
+          } else if (updatedValue.trim().length < 20) {
+            updatedErrors.bio = "Bio must be at least 20 characters";
+          } else {
+            delete updatedErrors.bio;
+          }
+          break;
+
+        default:
+          break;
+      }
+
+      return updatedErrors;
+    });
   };
 
   // Handle form submission
@@ -99,12 +208,12 @@ export default function EditTrainerModal({ isOpen, onClose, trainer, onSuccess }
         isActive: trainer.isActive,
       };
 
-    //   console.log("Submitting payload:", payload);
+      //   console.log("Submitting payload:", payload);
 
       // Submit
       const response = await axiosInstance.put(
         `/api/Trainers/${trainer.id}`,
-        payload
+        payload,
       );
       //   console.log("Success response:", response);
 
@@ -117,7 +226,8 @@ export default function EditTrainerModal({ isOpen, onClose, trainer, onSuccess }
         onSuccess();
       }
     } catch (err) {
-      const errorMessage = err.message || "Failed to update trainer. Please try again.";
+      const errorMessage =
+        err.message || "Failed to update trainer. Please try again.";
       setError(errorMessage);
       console.error("Error updating trainer:", err);
       console.error("Error details:", err.response?.data);
@@ -152,7 +262,10 @@ export default function EditTrainerModal({ isOpen, onClose, trainer, onSuccess }
           </div>
 
           {/* Content */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          <form
+            onSubmit={handleSubmit}
+            className="p-6 space-y-4 max-h-[70vh] overflow-y-auto"
+          >
             {/* Error Alert */}
             {error && (
               <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
@@ -178,7 +291,9 @@ export default function EditTrainerModal({ isOpen, onClose, trainer, onSuccess }
                 }`}
               />
               {validationErrors.fullName && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.fullName}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.fullName}
+                </p>
               )}
             </div>
 
@@ -200,7 +315,9 @@ export default function EditTrainerModal({ isOpen, onClose, trainer, onSuccess }
                 }`}
               />
               {validationErrors.email && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.email}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.email}
+                </p>
               )}
             </div>
 
@@ -222,7 +339,9 @@ export default function EditTrainerModal({ isOpen, onClose, trainer, onSuccess }
                 }`}
               />
               {validationErrors.phone && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.phone}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.phone}
+                </p>
               )}
             </div>
 
@@ -244,7 +363,9 @@ export default function EditTrainerModal({ isOpen, onClose, trainer, onSuccess }
                 }`}
               />
               {validationErrors.speciality && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.speciality}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.speciality}
+                </p>
               )}
             </div>
 
@@ -266,7 +387,9 @@ export default function EditTrainerModal({ isOpen, onClose, trainer, onSuccess }
                 }`}
               />
               {validationErrors.bio && (
-                <p className="text-xs text-red-400 mt-1">{validationErrors.bio}</p>
+                <p className="text-xs text-red-400 mt-1">
+                  {validationErrors.bio}
+                </p>
               )}
             </div>
           </form>

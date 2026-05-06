@@ -31,7 +31,7 @@ const EditWorkoutClassModal = ({ isOpen, onClose, classId, onSuccess }) => {
 
         // Fetch class details
         const classRes = await axiosInstance.get(
-          `/api/WorkoutClasses/${classId}`
+          `/api/WorkoutClasses/${classId}`,
         );
         const classData = classRes.data;
 
@@ -67,32 +67,144 @@ const EditWorkoutClassModal = ({ isOpen, onClose, classId, onSuccess }) => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
+    let updatedValue = value;
+
+    // Prevent invalid characters in class name
+    if (name === "name") {
+      updatedValue = value.replace(/[^a-zA-Z0-9\s&-]/g, "");
+    }
+
+    // Allow only numbers for duration
+    if (name === "durationInMinutes") {
+      updatedValue = value.replace(/\D/g, "");
+    }
+
     setForm((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : updatedValue,
     }));
 
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
-    }
+    // ================= REAL TIME VALIDATION =================
+    setErrors((prev) => {
+      const updatedErrors = { ...prev };
+
+      switch (name) {
+        case "name":
+          if (!updatedValue.trim()) {
+            updatedErrors.name = "Class name is required";
+          } else if (updatedValue.trim().length < 3) {
+            updatedErrors.name = "Class name must be at least 3 characters";
+          } else if (updatedValue.trim().length > 50) {
+            updatedErrors.name = "Class name must be less than 50 characters";
+          } else {
+            delete updatedErrors.name;
+          }
+          break;
+
+        case "description":
+          if (updatedValue.trim() && updatedValue.trim().length < 10) {
+            updatedErrors.description =
+              "Description must be at least 10 characters";
+          } else if (updatedValue.trim().length > 300) {
+            updatedErrors.description =
+              "Description must be less than 300 characters";
+          } else {
+            delete updatedErrors.description;
+          }
+          break;
+
+        case "scheduledAt":
+          if (!updatedValue) {
+            updatedErrors.scheduledAt = "Scheduled date and time is required";
+          } else {
+            const selectedDate = new Date(updatedValue);
+            const now = new Date();
+
+            if (selectedDate < now) {
+              updatedErrors.scheduledAt = "Date cannot be in the past";
+            } else {
+              delete updatedErrors.scheduledAt;
+            }
+          }
+          break;
+
+        case "durationInMinutes":
+          if (!updatedValue) {
+            updatedErrors.durationInMinutes = "Duration is required";
+          } else if (Number(updatedValue) < 15 || Number(updatedValue) > 300) {
+            updatedErrors.durationInMinutes =
+              "Duration must be between 15 and 300 minutes";
+          } else {
+            delete updatedErrors.durationInMinutes;
+          }
+          break;
+
+        case "trainerId":
+          if (!updatedValue) {
+            updatedErrors.trainerId = "Trainer is required";
+          } else {
+            delete updatedErrors.trainerId;
+          }
+          break;
+
+        default:
+          break;
+      }
+
+      return updatedErrors;
+    });
   };
 
   // ================= VALIDATION =================
   const validate = () => {
     const newErrors = {};
 
-    if (!form.name.trim()) newErrors.name = "Name is required";
-    if (!form.scheduledAt) newErrors.scheduledAt = "Date is required";
-    if (!form.durationInMinutes || form.durationInMinutes <= 0)
-      newErrors.durationInMinutes = "Duration must be greater than 0";
-    if (!form.trainerId) newErrors.trainerId = "Trainer is required";
+    // NAME
+    if (!form.name.trim()) {
+      newErrors.name = "Class name is required";
+    } else if (form.name.trim().length < 3) {
+      newErrors.name = "Class name must be at least 3 characters";
+    } else if (form.name.trim().length > 50) {
+      newErrors.name = "Class name must be less than 50 characters";
+    }
+
+    // DESCRIPTION
+    if (form.description.trim() && form.description.trim().length < 10) {
+      newErrors.description = "Description must be at least 10 characters";
+    } else if (form.description.trim().length > 300) {
+      newErrors.description = "Description must be less than 300 characters";
+    }
+
+    // DATE
+    if (!form.scheduledAt) {
+      newErrors.scheduledAt = "Scheduled date and time is required";
+    } else {
+      const selectedDate = new Date(form.scheduledAt);
+      const now = new Date();
+
+      if (selectedDate < now) {
+        newErrors.scheduledAt = "Date cannot be in the past";
+      }
+    }
+
+    // DURATION
+    if (!form.durationInMinutes) {
+      newErrors.durationInMinutes = "Duration is required";
+    } else if (
+      Number(form.durationInMinutes) < 15 ||
+      Number(form.durationInMinutes) > 300
+    ) {
+      newErrors.durationInMinutes =
+        "Duration must be between 15 and 300 minutes";
+    }
+
+    // TRAINER
+    if (!form.trainerId) {
+      newErrors.trainerId = "Trainer is required";
+    }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -200,6 +312,12 @@ const EditWorkoutClassModal = ({ isOpen, onClose, classId, onSuccess }) => {
                 rows="3"
                 className="w-full bg-slate-900/40 border border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-blue-500 transition-colors"
               />
+              
+              {errors.description && (
+                <p className="text-red-400 text-sm mt-1">
+                  {errors.description}
+                </p>
+              )}
             </div>
 
             {/* DATE */}
