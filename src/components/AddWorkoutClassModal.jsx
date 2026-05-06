@@ -98,8 +98,8 @@ const AddWorkoutClassModal = ({ isOpen, onClose, onSuccess }) => {
         errorMessage = "Duration is required";
       } else if (Number(updatedValue) < 15) {
         errorMessage = "Duration must be at least 15 minutes";
-      } else if (Number(updatedValue) > 300) {
-        errorMessage = "Duration cannot exceed 300 minutes";
+      } else if (Number(updatedValue) > 120) {
+        errorMessage = "Duration cannot exceed 120 minutes";
       }
     }
 
@@ -149,8 +149,8 @@ const AddWorkoutClassModal = ({ isOpen, onClose, onSuccess }) => {
       newErrors.durationInMinutes = "Duration is required";
     } else if (Number(form.durationInMinutes) < 15) {
       newErrors.durationInMinutes = "Duration must be at least 15 minutes";
-    } else if (Number(form.durationInMinutes) > 300) {
-      newErrors.durationInMinutes = "Duration cannot exceed 300 minutes";
+    } else if (Number(form.durationInMinutes) > 120) {
+      newErrors.durationInMinutes = "Duration cannot exceed 120 minutes";
     }
 
     // Trainer
@@ -216,7 +216,7 @@ const AddWorkoutClassModal = ({ isOpen, onClose, onSuccess }) => {
         </button>
 
         <h2 className="text-xl font-semibold mb-4">Add Workout Class</h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* NAME */}
           <div>
@@ -312,7 +312,7 @@ const AddWorkoutClassModal = ({ isOpen, onClose, onSuccess }) => {
               value={form.durationInMinutes}
               onChange={handleChange}
               min={15}
-              max={300}
+              max={120}
               className={`w-full bg-slate-900/40 border rounded-lg px-3 py-2 outline-none text-white placeholder:text-slate-500 transition ${
                 errors.durationInMinutes
                   ? "border-red-500 focus:border-red-500"

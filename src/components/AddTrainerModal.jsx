@@ -293,7 +293,7 @@ export default function AddTrainerModal({ isOpen, onClose, onSuccess }) {
                 type="tel"
                 name="phone"
                 inputMode="numeric"
-                maxLength={15}
+                maxLength={11}
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="Enter phone number"

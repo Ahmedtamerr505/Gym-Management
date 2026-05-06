@@ -64,10 +64,10 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
     } else if (!/^[0-9]+$/.test(formData.phoneNumber)) {
       errors.phoneNumber = "Phone Number must contain only numbers";
     } else if (formData.phoneNumber.length < 11) {
-      errors.phoneNumber = "Phone Number must be at least 11 digits";
-    } else if (formData.phoneNumber.length > 15) {
-      errors.phoneNumber = "Phone Number is too long";
-    }
+      errors.phoneNumber = "Phone Number must be at least 11 digits";}
+    //  else if (formData.phoneNumber.length > 15) {
+    //   errors.phoneNumber = "Phone Number is too long";
+    // }
 
     // ADDRESS
     if (!formData.address.trim()) {
@@ -254,6 +254,7 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
               <input
                 type="text"
                 name="fullName"
+                maxLength={50}
                 value={formData.fullName}
                 onChange={handleInputChange}
                 placeholder="Enter full name"
@@ -278,6 +279,7 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
               <input
                 type="email"
                 name="email"
+                maxLength={100}
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter email address"
@@ -302,7 +304,7 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
               <input
                 type="tel"
                 name="phoneNumber"
-                maxLength={15}
+                maxLength={11}
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
                 placeholder="Enter phone number"
@@ -326,6 +328,7 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
               </label>
               <textarea
                 name="address"
+                maxLength={300}
                 value={formData.address}
                 onChange={handleInputChange}
                 placeholder="Enter address"

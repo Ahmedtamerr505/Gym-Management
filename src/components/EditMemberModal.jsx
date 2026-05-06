@@ -308,7 +308,7 @@ export default function EditMemberModal({
               <input
                 type="tel"
                 name="phoneNumber"
-                maxLength={15}
+                maxLength={11}
                 inputMode="numeric"
                 value={formData.phoneNumber}
                 onChange={handleInputChange}

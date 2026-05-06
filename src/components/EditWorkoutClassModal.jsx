@@ -192,10 +192,10 @@ const EditWorkoutClassModal = ({ isOpen, onClose, classId, onSuccess }) => {
       newErrors.durationInMinutes = "Duration is required";
     } else if (
       Number(form.durationInMinutes) < 15 ||
-      Number(form.durationInMinutes) > 300
+      Number(form.durationInMinutes) > 120
     ) {
       newErrors.durationInMinutes =
-        "Duration must be between 15 and 300 minutes";
+        "Duration must be between 15 and 120 minutes";
     }
 
     // TRAINER

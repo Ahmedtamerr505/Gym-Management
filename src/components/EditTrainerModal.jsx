@@ -281,6 +281,7 @@ export default function EditTrainerModal({
               <input
                 type="text"
                 name="fullName"
+                maxLength={50}
                 value={formData.fullName}
                 onChange={handleInputChange}
                 placeholder="Enter full name"
@@ -305,6 +306,7 @@ export default function EditTrainerModal({
               <input
                 type="email"
                 name="email"
+                maxLength={100}
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter email address"
@@ -329,6 +331,7 @@ export default function EditTrainerModal({
               <input
                 type="tel"
                 name="phone"
+                maxLength={11}
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="Enter phone number"
@@ -353,6 +356,7 @@ export default function EditTrainerModal({
               <input
                 type="text"
                 name="speciality"
+                maxLength={50}
                 value={formData.speciality}
                 onChange={handleInputChange}
                 placeholder="e.g., CrossFit, Yoga, Boxing"
@@ -376,6 +380,7 @@ export default function EditTrainerModal({
               </label>
               <textarea
                 name="bio"
+                maxLength={200}
                 value={formData.bio}
                 onChange={handleInputChange}
                 placeholder="Enter trainer bio"
